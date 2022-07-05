@@ -6,55 +6,104 @@
         <v-card-title> Coordenadores </v-card-title>
       </v-col>
     </v-row>
-
-    <v-row justify="left" class="margin-left">
-      <v-dialog v-model="dialog" persistent max-width="600px">
+    <!-- DIALOG CADASTAR -->
+    <v-row>
+      <v-dialog
+        v-model="dialogStore"
+        fullscreen
+        hide-overlay
+        transition="dialog-bottom-transition"
+      >
         <template #activator="{ on, attrs }">
-          <v-btn color="primary" dark v-bind="attrs" small v-on="on">
-            Novo
+          <v-btn
+            color="primary"
+            dark
+            v-bind="attrs"
+            justify="left"
+            class="margin-left"
+            v-on="on"
+          >
+            novo
           </v-btn>
         </template>
         <v-card>
-          <v-card-title>
-            <span class="text-h5">Cadastrar Coordenador</span>
-          </v-card-title>
-          <v-card-text>
-            <v-container>
-              <v-row>
-                <v-col cols="12">
-                  <v-text-field
-                    v-model="name"
-                    label="Nome*"
-                    required
-                  ></v-text-field>
-                </v-col>
-                <v-col cols="12">
-                  <v-text-field
-                    v-model="email"
-                    label="Email*"
-                    required
-                  ></v-text-field>
-                </v-col>
-                <v-col cols="12">
-                  <v-text-field
-                    v-model="password"
-                    label="Senha*"
-                    required
-                  ></v-text-field>
-                </v-col>
-              </v-row>
-            </v-container>
-            <small>*Campos obirgatórios</small>
-          </v-card-text>
-          <v-card-actions>
+          <v-toolbar dark color="primary">
+            <v-btn icon dark @click="indexCoordinators()">
+              <v-icon>mdi-close</v-icon>
+            </v-btn>
+            <v-toolbar-title>Cadastrar Coordenador</v-toolbar-title>
             <v-spacer></v-spacer>
-            <v-btn color="blue darken-1" text @click="dialog = false">
-              Fechar
+            <v-toolbar-items>
+              <v-btn dark text @click="storeCoordinators()"> Salvar </v-btn>
+            </v-toolbar-items>
+          </v-toolbar>
+
+          <v-row justify="center" class="dialog">
+            <v-col cols="8">
+              <v-text-field
+                v-model="name"
+                label="Nome*"
+                required
+              ></v-text-field>
+
+              <v-text-field
+                v-model="email"
+                label="Email*"
+                required
+              ></v-text-field>
+
+              <v-text-field
+                v-model="password"
+                label="Senha*"
+                required
+              ></v-text-field>
+            </v-col>
+          </v-row>
+        </v-card>
+      </v-dialog>
+    </v-row>
+
+    <!-- DIALOG UPDATE -->
+    <v-row>
+      <v-dialog
+        v-model="dialogUpdate"
+        fullscreen
+        hide-overlay
+        transition="dialog-bottom-transition"
+      >
+        <v-card>
+          <v-toolbar dark color="primary">
+            <v-btn icon dark @click="dialogUpdate = false">
+              <v-icon>mdi-close</v-icon>
             </v-btn>
-            <v-btn color="blue darken-1" text @click="storeCoodinators()">
-              Salvar
-            </v-btn>
-          </v-card-actions>
+            <v-toolbar-title>Cadastrar Coordenador</v-toolbar-title>
+            <v-spacer></v-spacer>
+            <v-toolbar-items>
+              <v-btn dark text @click="updateCoordinators(id)"> Salvar </v-btn>
+            </v-toolbar-items>
+          </v-toolbar>
+
+          <v-row justify="center" class="dialog">
+            <v-col cols="8">
+              <v-text-field
+                v-model="name"
+                label="Nome*"
+                required
+              ></v-text-field>
+
+              <v-text-field
+                v-model="email"
+                label="Email*"
+                required
+              ></v-text-field>
+
+              <v-text-field
+                v-model="password"
+                label="Senha*"
+                required
+              ></v-text-field>
+            </v-col>
+          </v-row>
         </v-card>
       </v-dialog>
     </v-row>
@@ -73,13 +122,20 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="item in coordinators" :key="item.name">
+              <tr v-for="item in coordinators" :key="item.id">
                 <td>{{ item.id }}</td>
                 <td>{{ item.name }}</td>
                 <td>{{ item.email }}</td>
                 <td>{{ item.password }}</td>
                 <td>
-                  <v-btn depressed x-small> Editar </v-btn>
+                  <v-btn
+                    depressed
+                    color="normal"
+                    x-small
+                    @click="openDialogUpdate(item)"
+                  >
+                    Editar
+                  </v-btn>
 
                   <v-btn
                     depressed
@@ -107,10 +163,15 @@ export default {
   name: 'Coordenadores',
   data() {
     return {
+      id: '',
       name: '',
       email: '',
       password: '',
-      dialog: false,
+      dialogStore: false,
+      dialogUpdate: false,
+      notifications: false,
+      sound: true,
+      widgets: false,
       coordinators: [],
     }
   },
@@ -122,9 +183,10 @@ export default {
     async indexCoordinators() {
       const coordinators = await axios.get('http://127.0.0.1:3333/coordinators')
       this.coordinators = coordinators.data
+      this.dialogStore = false
     },
 
-    async storeCoodinators() {
+    async storeCoordinators() {
       try {
         const coordinator = await axios.post(
           'http://127.0.0.1:3333/coordinators',
@@ -136,7 +198,36 @@ export default {
         )
 
         console.log(coordinator)
-        this.dialog = false
+        this.indexCoordinators()
+      } catch (error) {
+        console.log(error)
+      }
+    },
+
+    openDialogUpdate(item) {
+      this.dialogUpdate = true
+      this.id = item.id
+      this.name = item.name
+      this.email = item.email
+      this.password = item.password
+      console.log(this.id)
+
+      this.indexCoordinators()
+    },
+
+    async updateCoordinators(id) {
+      try {
+        const coordinator = await axios.put(
+          `http://127.0.0.1:3333/coordinators/${id}`,
+          {
+            name: this.name,
+            email: this.email,
+            password: this.password,
+          }
+        )
+
+        console.log(coordinator)
+        this.dialogUpdate = false
         this.indexCoordinators()
       } catch (error) {
         console.log(error)
@@ -154,5 +245,9 @@ export default {
 <style scoped>
 .margin-left {
   margin-left: 10px;
+}
+
+.dialog {
+  margin-top: 30px;
 }
 </style>
