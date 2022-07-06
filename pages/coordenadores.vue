@@ -215,6 +215,13 @@ export default {
       this.indexCoordinators()
     },
 
+    clearInputs() {
+      this.id = ''
+      this.name = ''
+      this.email = ''
+      this.password = ''
+    },
+
     async updateCoordinators(id) {
       try {
         const coordinator = await axios.put(
@@ -228,6 +235,7 @@ export default {
 
         console.log(coordinator)
         this.dialogUpdate = false
+        this.clearInputs()
         this.indexCoordinators()
       } catch (error) {
         console.log(error)
