@@ -7,6 +7,17 @@
       </v-col>
     </v-row>
     <!-- DIALOG CADASTAR -->
+    <v-btn
+      color="primary"
+      dark
+      justify="left"
+      class="margin-left"
+      @click="openDialogStore()"
+    >
+      novo
+      <v-icon right dark> mdi-plus </v-icon>
+    </v-btn>
+
     <v-row>
       <v-dialog
         v-model="dialogStore"
@@ -14,18 +25,6 @@
         hide-overlay
         transition="dialog-bottom-transition"
       >
-        <template #activator="{ on, attrs }">
-          <v-btn
-            color="primary"
-            dark
-            v-bind="attrs"
-            justify="left"
-            class="margin-left"
-            v-on="on"
-          >
-            novo
-          </v-btn>
-        </template>
         <v-card>
           <v-toolbar dark color="primary">
             <v-btn icon dark @click="indexCoordinators()">
@@ -135,6 +134,7 @@
                     @click="openDialogUpdate(item)"
                   >
                     Editar
+                    <v-icon right dark> mdi-pencil </v-icon>
                   </v-btn>
 
                   <v-btn
@@ -144,6 +144,7 @@
                     @click="destroyCoordinators(item.id)"
                   >
                     Deletar
+                    <v-icon right dark> mdi-trash-can</v-icon>
                   </v-btn>
                 </td>
               </tr>
@@ -180,6 +181,13 @@ export default {
   },
 
   methods: {
+    clearInputs() {
+      this.id = ''
+      this.name = ''
+      this.email = ''
+      this.password = ''
+    },
+
     async indexCoordinators() {
       const coordinators = await axios.get('http://127.0.0.1:3333/coordinators')
       this.coordinators = coordinators.data
@@ -215,11 +223,9 @@ export default {
       this.indexCoordinators()
     },
 
-    clearInputs() {
-      this.id = ''
-      this.name = ''
-      this.email = ''
-      this.password = ''
+    openDialogStore() {
+      this.dialogStore = true
+      this.clearInputs()
     },
 
     async updateCoordinators(id) {
