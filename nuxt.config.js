@@ -3,8 +3,8 @@ import colors from 'vuetify/es5/util/colors'
 export default {
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
-    titleTemplate: '%s - gestagio-front',
-    title: 'gestagio-front',
+    titleTemplate: '%s - Gestão de estágios',
+    title: 'Gestagio',
     htmlAttrs: {
       lang: 'pt-br',
     },
@@ -35,7 +35,28 @@ export default {
   ],
 
   // Modules: https://go.nuxtjs.dev/config-modules
-  modules: [],
+  modules: [
+    '@nuxtjs/axios',
+    '@nuxtjs/auth'
+  ],
+
+  axios: {
+    baseURL: "http://127.0.0.1:3333"
+  },
+
+  auth: {
+    strategies: {
+      local: {
+        endpoints: {
+          login: {url: '/loginGod', method: 'post', propertyName: 'authenticationToken'},
+          user: {url: '/coordinators', method: 'get', propertyName: null}
+        }
+      }
+    },
+    redirect: {
+      home: '/coordenadores'
+    }
+  },
 
   // Vuetify module configuration: https://go.nuxtjs.dev/config-vuetify
   vuetify: {

@@ -6,14 +6,14 @@
     <h1 v-else>
       {{ otherError }}
     </h1>
-    <NuxtLink to="/"> Home page </NuxtLink>
+    <NuxtLink to="/loginGod"> clique aqui </NuxtLink>
   </v-app>
 </template>
 
 <script>
 export default {
   name: 'EmptyLayout',
-  layout: 'empty',
+  layout: 'emptyPage',
   props: {
     error: {
       type: Object,
@@ -22,7 +22,7 @@ export default {
   },
   data() {
     return {
-      pageNotFound: '404 Not Found',
+      pageNotFound: 'Página não encontrada, Fazer login novamente',
       otherError: 'An error occurred',
     }
   },
