@@ -45,9 +45,34 @@ export default {
     drawer: null,
     items: [
       {
-        icon: 'mdi-apps',
+        icon: 'mdi-view-dashboard',
+        title: 'Dashboard',
+        to: '/dashboard',
+      },
+      {
+        icon: 'mdi-account-school',
         title: 'Estudantes',
         to: '/students',
+      },
+      {
+        icon: 'mdi-book-open-variant',
+        title: 'Cursos',
+        to: '/courses',
+      },
+      {
+        icon: 'mdi-human-male-board',
+        title: 'Professores',
+        to: '/teachers',
+      },
+      {
+        icon: 'mdi-google-my-business',
+        title: 'Empresas',
+        to: '/companies',
+      },
+      {
+        icon: 'mdi-briefcase',
+        title: 'Estágios',
+        to: '/internships',
       },
     ],
   }),

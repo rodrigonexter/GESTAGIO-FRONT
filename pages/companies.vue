@@ -1,7 +1,5 @@
 <template>
-  <div>
-    <h1>DASHBOARD</h1>
-  </div>
+  <h1>Empresas</h1>
 </template>
 
 <script>
