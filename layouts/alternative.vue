@@ -26,7 +26,7 @@
     <v-app-bar app>
       <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
 
-      <v-toolbar-title>Gestagio</v-toolbar-title>
+      <v-toolbar-title>Gestagio - (GOD)</v-toolbar-title>
     </v-app-bar>
 
     <v-main>
@@ -40,14 +40,14 @@
 
 <script>
 export default {
-  name: 'DefaultLayout',
+  name: 'Alternative',
   data: () => ({
     drawer: null,
     items: [
       {
         icon: 'mdi-apps',
-        title: 'Estudantes',
-        to: '/students',
+        title: 'Coordenadores',
+        to: '/coordinators',
       },
     ],
   }),

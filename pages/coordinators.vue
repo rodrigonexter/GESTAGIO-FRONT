@@ -1,3 +1,4 @@
+<!-- eslint-disable no-console -->
 /* eslint-disable no-console */
 <template>
   <v-container>
@@ -40,12 +41,6 @@
           <v-row justify="center" class="dialog">
             <v-col cols="8">
               <v-text-field
-                v-model="name"
-                label="Nome*"
-                required
-              ></v-text-field>
-
-              <v-text-field
                 v-model="email"
                 label="Email*"
                 required
@@ -85,12 +80,6 @@
           <v-row justify="center" class="dialog">
             <v-col cols="8">
               <v-text-field
-                v-model="name"
-                label="Nome*"
-                required
-              ></v-text-field>
-
-              <v-text-field
                 v-model="email"
                 label="Email*"
                 required
@@ -98,7 +87,7 @@
 
               <v-text-field
                 v-model="password"
-                label="Senha*"
+                label="Nova senha"
                 required
               ></v-text-field>
             </v-col>
@@ -106,7 +95,31 @@
         </v-card>
       </v-dialog>
     </v-row>
+    <!-- DIALOG DESTROY -->
+    <v-row justify="center">
+      <v-dialog v-model="dialogDestroy" persistent max-width="290">
+        <v-card>
+          <v-card-title class="text-h6">
+            Deseja relmente excluir esta informação?
+          </v-card-title>
+          <v-card-text
+            >Ao excluir está informação não será possivel
+            recuperá-la</v-card-text
+          >
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="error" text @click="dialogDestroy = false">
+              cancelar
+            </v-btn>
+            <v-btn color="primary" dark @click="destroyCoordinators(id)">
+              excluir
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+    </v-row>
 
+    <!-- INDEX TABLE-->
     <v-row>
       <v-col cols="12">
         <v-simple-table>
@@ -114,7 +127,6 @@
             <thead>
               <tr>
                 <th class="text-left">ID</th>
-                <th class="text-left">Nome</th>
                 <th class="text-left">Email</th>
                 <th class="text-left">Senha</th>
                 <th class="text-left">Ações</th>
@@ -123,9 +135,8 @@
             <tbody>
               <tr v-for="item in coordinators" :key="item.id">
                 <td>{{ item.id }}</td>
-                <td>{{ item.name }}</td>
                 <td>{{ item.email }}</td>
-                <td>{{ item.password }}</td>
+                <td>************</td>
                 <td>
                   <v-btn
                     depressed
@@ -141,7 +152,7 @@
                     depressed
                     color="error"
                     x-small
-                    @click="destroyCoordinators(item.id)"
+                    @click="openDialogDestroy(item)"
                   >
                     Deletar
                     <v-icon right dark> mdi-trash-can</v-icon>
@@ -160,17 +171,18 @@
 import axios from 'axios'
 
 export default {
-  // eslint-disable-next-line vue/multi-word-component-names
   name: 'Coordenadores',
+  layout: 'alternative',
   middleware: 'auth',
   data() {
     return {
       id: '',
-      name: '',
       email: '',
+      type: '',
       password: '',
       dialogStore: false,
       dialogUpdate: false,
+      dialogDestroy: false,
       notifications: false,
       sound: true,
       widgets: false,
@@ -184,27 +196,23 @@ export default {
   methods: {
     clearInputs() {
       this.id = ''
-      this.name = ''
       this.email = ''
       this.password = ''
     },
 
     async indexCoordinators() {
-      const coordinators = await axios.get('http://127.0.0.1:3333/coordinators')
+      const coordinators = await axios.get('http://127.0.0.1:3333/users')
       this.coordinators = coordinators.data
       this.dialogStore = false
     },
 
     async storeCoordinators() {
       try {
-        const coordinator = await axios.post(
-          'http://127.0.0.1:3333/coordinators',
-          {
-            name: this.name,
-            email: this.email,
-            password: this.password,
-          }
-        )
+        const coordinator = await axios.post('http://127.0.0.1:3333/users', {
+          email: this.email,
+          type: '',
+          password: this.password,
+        })
 
         console.log(coordinator)
         this.indexCoordinators()
@@ -216,12 +224,16 @@ export default {
     openDialogUpdate(item) {
       this.dialogUpdate = true
       this.id = item.id
-      this.name = item.name
       this.email = item.email
       this.password = item.password
       console.log(this.id)
 
       this.indexCoordinators()
+    },
+
+    openDialogDestroy(item) {
+      this.dialogDestroy = true
+      this.id = item.id
     },
 
     openDialogStore() {
@@ -232,9 +244,8 @@ export default {
     async updateCoordinators(id) {
       try {
         const coordinator = await axios.put(
-          `http://127.0.0.1:3333/coordinators/${id}`,
+          `http://127.0.0.1:3333/users/${id}`,
           {
-            name: this.name,
             email: this.email,
             password: this.password,
           }
@@ -250,8 +261,9 @@ export default {
     },
 
     async destroyCoordinators(id) {
-      await axios.delete(`http://127.0.0.1:3333/coordinators/${id}`)
+      await axios.delete(`http://127.0.0.1:3333/users/${id}`)
       this.indexCoordinators()
+      this.dialogDestroy = false
     },
   },
 }

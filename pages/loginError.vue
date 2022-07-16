@@ -8,7 +8,9 @@
             <img src="../static/error.png" alt="" />
           </div>
           <div>
-            <v-btn color="primary" dark to="/loginGod"> Tentar NOvamente</v-btn>
+            <v-btn color="primary" dark to="/loginPage">
+              Tentar NOvamente</v-btn
+            >
           </div>
         </v-layout>
       </v-container>

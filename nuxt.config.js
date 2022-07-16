@@ -48,14 +48,11 @@ export default {
     strategies: {
       local: {
         endpoints: {
-          login: {url: '/loginGod', method: 'post', propertyName: 'authenticationToken'},
-          user: {url: '/coordinators', method: 'get', propertyName: null}
+          login: {url: '/login', method: 'post', propertyName: 'authenticationToken'},
+          user: {url: '/users', method: 'get', propertyName: null}
         }
       }
     },
-    redirect: {
-      home: '/coordenadores'
-    }
   },
 
   // Vuetify module configuration: https://go.nuxtjs.dev/config-vuetify
