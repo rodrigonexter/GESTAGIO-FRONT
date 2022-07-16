@@ -33,34 +33,42 @@
                   <v-card-text>
                     <v-container>
                       <v-row>
-                        <v-col cols="12" sm="6" md="4">
+                        <v-col cols="12" sm="6" md="6">
                           <v-text-field
                             v-model="editedItem.name"
-                            label="Dessert name"
+                            label="Nome Completo"
                           ></v-text-field>
                         </v-col>
-                        <v-col cols="12" sm="6" md="4">
+                        <v-col cols="12" sm="6" md="6">
                           <v-text-field
                             v-model="editedItem.email"
-                            label="email"
+                            label="Email"
                           ></v-text-field>
                         </v-col>
                         <v-col cols="12" sm="6" md="4">
                           <v-text-field
                             v-model="editedItem.phone"
-                            label="phone (g)"
+                            label="Telefone"
                           ></v-text-field>
                         </v-col>
                         <v-col cols="12" sm="6" md="4">
                           <v-text-field
                             v-model="editedItem.cpf"
-                            label="cpf (g)"
+                            label="CPF"
                           ></v-text-field>
                         </v-col>
                         <v-col cols="12" sm="6" md="4">
                           <v-text-field
+                            v-model="editedItem.student_id"
+                            label="Matrícula"
+                          ></v-text-field>
+                        </v-col>
+                      </v-row>
+                      <v-row>
+                        <v-col cols="12">
+                          <v-text-field
                             v-model="editedItem.address"
-                            label="address (g)"
+                            label="Endereço"
                           ></v-text-field>
                         </v-col>
                       </v-row>
@@ -70,10 +78,10 @@
                   <v-card-actions>
                     <v-spacer></v-spacer>
                     <v-btn color="blue darken-1" text @click="close">
-                      Cancel
+                      Cancelar
                     </v-btn>
                     <v-btn color="blue darken-1" text @click="save">
-                      Save
+                      Salvar
                     </v-btn>
                   </v-card-actions>
                 </v-card>
@@ -86,7 +94,7 @@
                   <v-card-actions>
                     <v-spacer></v-spacer>
                     <v-btn color="blue darken-1" text @click="closeDelete"
-                      >Cancel</v-btn
+                      >Cancelar</v-btn
                     >
                     <v-btn color="blue darken-1" text @click="deleteItemConfirm"
                       >OK</v-btn
@@ -131,23 +139,28 @@ export default {
       { text: 'Telefone', value: 'phone', sortable: false },
       { text: 'CPF', value: 'cpf', sortable: false },
       { text: 'Endereço', value: 'address', sortable: false },
+      { text: 'Matrícula', value: 'student_id', sortable: false },
       { text: 'Ações', value: 'actions', sortable: false },
     ],
     desserts: [],
     editedIndex: -1,
     editedItem: {
+      id: '',
       name: '',
-      email: 0,
-      phone: 0,
-      cpf: 0,
-      address: 0,
+      email: '',
+      phone: '',
+      cpf: '',
+      address: '',
+      student_id: '',
     },
     defaultItem: {
+      id: '',
       name: '',
-      email: 0,
-      phone: 0,
-      cpf: 0,
-      address: 0,
+      email: '',
+      phone: '',
+      cpf: '',
+      address: '',
+      student_id: '',
     },
   }),
 
@@ -171,10 +184,47 @@ export default {
   },
 
   methods: {
+    async store() {
+      try {
+        const student = await axios.post('http://127.0.0.1:3333/students', {
+          name: this.editedItem.name,
+          email: this.editedItem.email,
+          phone: this.editedItem.phone,
+          cpf: this.editedItem.cpf,
+          address: this.editedItem.address,
+          student_id: this.editedItem.student_id,
+        })
+
+        // console.log(student)
+        this.initialize()
+      } catch (error) {
+        // console.log(error)
+      }
+    },
+
+    async update(id) {
+      try {
+        const student = await axios.put(
+          `http://127.0.0.1:3333/students/${id}`,
+          this.editedItem
+        )
+
+        // console.log(student)
+        this.initialize()
+      } catch (error) {
+        // console.log(error)
+      }
+    },
+    async destroy(id) {
+      await axios.delete(`http://127.0.0.1:3333/students/${id}`)
+      this.initialize()
+    },
+
     async initialize() {
       const students = await axios.get('http://127.0.0.1:3333/students')
 
       this.desserts = students.data
+      // console.log(this.desserts)
     },
 
     editItem(item) {
@@ -191,6 +241,8 @@ export default {
 
     deleteItemConfirm() {
       this.desserts.splice(this.editedIndex, 1)
+      this.destroy(this.editedItem.id)
+      // console.log(this.editedIndex)
       this.closeDelete()
     },
 
@@ -212,9 +264,11 @@ export default {
 
     save() {
       if (this.editedIndex > -1) {
-        Object.assign(this.desserts[this.editedIndex], this.editedItem)
+        // Object.assign(this.desserts[this.editedIndex], this.editedItem)
+        this.update(this.editedItem.id)
+        // console.log(this.editedItem)
       } else {
-        this.desserts.push(this.editedItem)
+        this.store()
       }
       this.close()
     },

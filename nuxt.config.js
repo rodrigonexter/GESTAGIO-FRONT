@@ -39,6 +39,10 @@ export default {
     '@nuxtjs/axios',
     '@nuxtjs/auth'
   ],
+  eslint: {
+    /* module options */
+
+  },
 
   axios: {
     baseURL: "http://127.0.0.1:3333"
