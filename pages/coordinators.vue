@@ -214,9 +214,11 @@ export default {
           password: this.password,
         })
 
+        // eslint-disable-next-line no-undef
         console.log(coordinator)
         this.indexCoordinators()
       } catch (error) {
+        // eslint-disable-next-line no-undef
         console.log(error)
       }
     },
@@ -226,6 +228,7 @@ export default {
       this.id = item.id
       this.email = item.email
       this.password = item.password
+      // eslint-disable-next-line no-undef
       console.log(this.id)
 
       this.indexCoordinators()
@@ -251,11 +254,13 @@ export default {
           }
         )
 
+        // eslint-disable-next-line no-undef
         console.log(coordinator)
         this.dialogUpdate = false
         this.clearInputs()
         this.indexCoordinators()
       } catch (error) {
+        // eslint-disable-next-line no-undef
         console.log(error)
       }
     },

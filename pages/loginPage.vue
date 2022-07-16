@@ -55,7 +55,7 @@ export default {
       await this.$auth
         .loginWith('local', { data: this.login })
         .then(() => {
-          // eslint-disable-next-line no-console
+          // eslint-disable-next-line no-undef
           console.log('logado com sucesso!!!!!')
           if (this.login.email === 'god@god.com') {
             this.$router.push('/coordinators')
@@ -64,9 +64,9 @@ export default {
           }
         })
         .catch((error) => {
-          // eslint-disable-next-line no-console
+          // eslint-disable-next-line no-undef
           console.log('erro!!!')
-          // eslint-disable-next-line no-console
+          // eslint-disable-next-line no-console, no-undef
           console.log(error.response.status)
           if (error.response.status === 401) {
             this.$router.push('/loginError')

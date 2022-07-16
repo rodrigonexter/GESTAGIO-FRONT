@@ -12,8 +12,10 @@ module.exports = {
   plugins: [],
   // add your custom rules here
   rules: {
-    "no-console": false,
+    "no-debugger": 'off',
+    "no-console": 'off',
     'vue/multi-word-component-names': 'off',
+    'vue/no-unused-vars': 'off'
 
   },
 

@@ -1,3 +1,4 @@
+<!-- eslint-disable no-undef -->
 <template>
   <v-container>
     <v-row>
@@ -186,7 +187,7 @@ export default {
   methods: {
     async store() {
       try {
-        const student = await axios.post('http://127.0.0.1:3333/students', {
+        const student = await axios.post(`http://127.0.0.1:3333/students`, {
           name: this.editedItem.name,
           email: this.editedItem.email,
           phone: this.editedItem.phone,
@@ -195,10 +196,12 @@ export default {
           student_id: this.editedItem.student_id,
         })
 
-        // console.log(student)
+        // eslint-disable-next-line no-undef
+        console.log(student)
         this.initialize()
       } catch (error) {
-        // console.log(error)
+        // eslint-disable-next-line no-undef
+        console.log(error)
       }
     },
 
@@ -209,22 +212,23 @@ export default {
           this.editedItem
         )
 
-        // console.log(student)
+        // eslint-disable-next-line no-undef
+        console.log(student)
         this.initialize()
       } catch (error) {
-        // console.log(error)
+        // eslint-disable-next-line no-undef
+        console.error(error)
       }
     },
     async destroy(id) {
-      await axios.delete(`http://127.0.0.1:3333/students/${id}`)
+      await axios.delete(`http://127.0.0.1:3333/${id}`)
       this.initialize()
     },
 
     async initialize() {
-      const students = await axios.get('http://127.0.0.1:3333/students')
+      const students = await axios.get(`http://127.0.0.1:3333/students`)
 
       this.desserts = students.data
-      // console.log(this.desserts)
     },
 
     editItem(item) {
@@ -242,7 +246,8 @@ export default {
     deleteItemConfirm() {
       this.desserts.splice(this.editedIndex, 1)
       this.destroy(this.editedItem.id)
-      // console.log(this.editedIndex)
+      // eslint-disable-next-line no-undef
+      console.log(this.editedIndex)
       this.closeDelete()
     },
 
@@ -266,7 +271,8 @@ export default {
       if (this.editedIndex > -1) {
         // Object.assign(this.desserts[this.editedIndex], this.editedItem)
         this.update(this.editedItem.id)
-        // console.log(this.editedItem)
+        // eslint-disable-next-line no-undef
+        console.log(this.editedItem)
       } else {
         this.store()
       }
