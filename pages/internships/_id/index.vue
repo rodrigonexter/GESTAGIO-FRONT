@@ -3,6 +3,17 @@
   <v-container>
     <v-row>
       <v-col>
+        <NuxtLink
+          to="/internships"
+          style="text-decoration: none; color: inherit"
+          ><v-btn color="primary" x-small text>
+            <v-icon small> mdi-chevron-left </v-icon> Voltar
+          </v-btn>
+        </NuxtLink>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col>
         <v-data-table
           :headers="headers"
           :items="desserts"
@@ -11,7 +22,7 @@
         >
           <template v-slot:top>
             <v-toolbar flat>
-              <v-toolbar-title>Estudantes</v-toolbar-title>
+              <v-toolbar-title>Renovações</v-toolbar-title>
               <v-divider class="mx-4" inset vertical></v-divider>
               <v-spacer></v-spacer>
               <v-dialog v-model="dialog" max-width="600px">
@@ -32,49 +43,30 @@
                   </v-card-title>
 
                   <v-card-text>
-                    <v-form v-model="valid">
+                    <v-container>
                       <v-row>
                         <v-col cols="12" sm="6" md="6">
                           <v-text-field
                             v-model="editedItem.name"
-                            label="Nome Completo"
+                            label="Nome do Curso"
                           ></v-text-field>
                         </v-col>
                         <v-col cols="12" sm="6" md="6">
                           <v-text-field
-                            v-model="editedItem.email"
-                            label="Email"
-                            :rules="email"
-                          ></v-text-field>
-                        </v-col>
-                        <v-col cols="12" sm="6" md="4">
-                          <v-text-field
-                            v-model="editedItem.phone"
-                            label="Telefone"
-                          ></v-text-field>
-                        </v-col>
-                        <v-col cols="12" sm="6" md="4">
-                          <v-text-field
-                            v-model="editedItem.cpf"
-                            label="CPF"
-                          ></v-text-field>
-                        </v-col>
-                        <v-col cols="12" sm="6" md="4">
-                          <v-text-field
-                            v-model="editedItem.student_id"
-                            label="Matrícula"
+                            v-model="editedItem.department"
+                            label="Departamento"
                           ></v-text-field>
                         </v-col>
                       </v-row>
                       <v-row>
                         <v-col cols="12">
                           <v-text-field
-                            v-model="editedItem.address"
-                            label="Endereço"
+                            v-model="editedItem.description"
+                            label="Descrição"
                           ></v-text-field>
                         </v-col>
                       </v-row>
-                    </v-form>
+                    </v-container>
                   </v-card-text>
 
                   <v-card-actions>
@@ -82,12 +74,7 @@
                     <v-btn color="blue darken-1" text @click="close">
                       Cancelar
                     </v-btn>
-                    <v-btn
-                      color="blue darken-1"
-                      text
-                      @click="save"
-                      :disabled="!valid"
-                    >
+                    <v-btn color="blue darken-1" text @click="save">
                       Salvar
                     </v-btn>
                   </v-card-actions>
@@ -133,15 +120,6 @@ import axios from 'axios'
 
 export default {
   data: () => ({
-    email: [
-      (v) => {
-        const pattern =
-          /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-        return pattern.test(v) || 'E-mail invalido'
-      },
-    ],
-
-    valid: false,
     dialog: false,
     dialogDelete: false,
     headers: [
@@ -151,38 +129,42 @@ export default {
         sortable: false,
         value: 'name',
       },
-      { text: 'Email', value: 'email', sortable: false },
-      { text: 'Telefone', value: 'phone', sortable: false },
-      { text: 'CPF', value: 'cpf', sortable: false },
-      { text: 'Endereço', value: 'address', sortable: false },
-      { text: 'Matrícula', value: 'student_id', sortable: false },
+      { text: 'Descrição', value: 'description', sortable: false },
+      { text: 'Departamento', value: 'department', sortable: false },
       { text: 'Ações', value: 'actions', sortable: false },
     ],
     desserts: [],
     editedIndex: -1,
     editedItem: {
-      id: '',
-      name: '',
-      email: '',
-      phone: '',
-      cpf: '',
-      address: '',
+      internship_id: '',
       student_id: '',
+      company_id: '',
+      teacher_id: '',
+      supervisor: '',
+      initial_date: '',
+      final_date: '',
+      wage: '',
+      aid: '',
+      health_insurance_code: '',
+      health_insurance_company: '',
+      weekly_working_hours: '',
+      category: '',
+      modality: '',
+      activities_plan: '',
+      report: '',
+      status: '',
     },
     defaultItem: {
       id: '',
       name: '',
-      email: '',
-      phone: '',
-      cpf: '',
-      address: '',
-      student_id: '',
+      description: '',
+      department: '',
     },
   }),
 
   computed: {
     formTitle() {
-      return this.editedIndex === -1 ? 'Novo Estudante' : 'Editar Estudante'
+      return this.editedIndex === -1 ? 'Novo Curso' : 'Editar Curso'
     },
   },
 
@@ -202,13 +184,10 @@ export default {
   methods: {
     async store() {
       try {
-        const student = await axios.post(`http://127.0.0.1:3333/students`, {
+        const student = await axios.post(`http://127.0.0.1:3333/courses`, {
           name: this.editedItem.name,
-          email: this.editedItem.email,
-          phone: this.editedItem.phone,
-          cpf: this.editedItem.cpf,
-          address: this.editedItem.address,
-          student_id: this.editedItem.student_id,
+          description: this.editedItem.description,
+          department: this.editedItem.department,
         })
 
         // eslint-disable-next-line no-undef
@@ -223,7 +202,7 @@ export default {
     async update(id) {
       try {
         const student = await axios.put(
-          `http://127.0.0.1:3333/students/${id}`,
+          `http://127.0.0.1:3333/courses/${id}`,
           this.editedItem
         )
 
@@ -236,12 +215,12 @@ export default {
       }
     },
     async destroy(id) {
-      await axios.delete(`http://127.0.0.1:3333/students/${id}`)
+      await axios.delete(`http://127.0.0.1:3333/courses/${id}`)
       this.initialize()
     },
 
     async initialize() {
-      const students = await axios.get(`http://127.0.0.1:3333/students`)
+      const students = await axios.get(`http://127.0.0.1:3333/courses`)
 
       this.desserts = students.data
     },

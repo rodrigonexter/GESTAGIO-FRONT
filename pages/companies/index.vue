@@ -1,6 +1,7 @@
 <!-- eslint-disable no-undef -->
 <template>
   <v-container>
+    <NuxtChild :key="$route.params.id" />
     <v-row>
       <v-col>
         <v-data-table
@@ -11,7 +12,7 @@
         >
           <template v-slot:top>
             <v-toolbar flat>
-              <v-toolbar-title>Estudantes</v-toolbar-title>
+              <v-toolbar-title>Empresas</v-toolbar-title>
               <v-divider class="mx-4" inset vertical></v-divider>
               <v-spacer></v-spacer>
               <v-dialog v-model="dialog" max-width="600px">
@@ -30,51 +31,46 @@
                   <v-card-title>
                     <span class="text-h5">{{ formTitle }}</span>
                   </v-card-title>
-
+                  <!--  name, companyId, email, phone, address -->
                   <v-card-text>
-                    <v-form v-model="valid">
+                    <v-container>
                       <v-row>
                         <v-col cols="12" sm="6" md="6">
                           <v-text-field
                             v-model="editedItem.name"
-                            label="Nome Completo"
+                            label="Nome da empresa"
                           ></v-text-field>
                         </v-col>
                         <v-col cols="12" sm="6" md="6">
                           <v-text-field
-                            v-model="editedItem.email"
-                            label="Email"
-                            :rules="email"
+                            v-model="editedItem.company_id"
+                            label="CNPJ"
                           ></v-text-field>
                         </v-col>
-                        <v-col cols="12" sm="6" md="4">
+                      </v-row>
+                      <v-row>
+                        <v-col cols="12" sm="6" md="6">
+                          <v-text-field
+                            v-model="editedItem.email"
+                            label="Email"
+                          ></v-text-field>
+                        </v-col>
+                        <v-col cols="6">
                           <v-text-field
                             v-model="editedItem.phone"
                             label="Telefone"
                           ></v-text-field>
                         </v-col>
-                        <v-col cols="12" sm="6" md="4">
-                          <v-text-field
-                            v-model="editedItem.cpf"
-                            label="CPF"
-                          ></v-text-field>
-                        </v-col>
-                        <v-col cols="12" sm="6" md="4">
-                          <v-text-field
-                            v-model="editedItem.student_id"
-                            label="Matrícula"
-                          ></v-text-field>
-                        </v-col>
                       </v-row>
                       <v-row>
-                        <v-col cols="12">
+                        <v-col cols="6">
                           <v-text-field
                             v-model="editedItem.address"
                             label="Endereço"
                           ></v-text-field>
                         </v-col>
                       </v-row>
-                    </v-form>
+                    </v-container>
                   </v-card-text>
 
                   <v-card-actions>
@@ -82,12 +78,7 @@
                     <v-btn color="blue darken-1" text @click="close">
                       Cancelar
                     </v-btn>
-                    <v-btn
-                      color="blue darken-1"
-                      text
-                      @click="save"
-                      :disabled="!valid"
-                    >
+                    <v-btn color="blue darken-1" text @click="save">
                       Salvar
                     </v-btn>
                   </v-card-actions>
@@ -113,6 +104,9 @@
             </v-toolbar>
           </template>
           <template v-slot:[`item.actions`]="{ item }">
+            <v-icon small class="mr-2" @click="companyMore(item.id)">
+              mdi-dots-vertical
+            </v-icon>
             <v-icon small class="mr-2" @click="editItem(item)">
               mdi-pencil
             </v-icon>
@@ -133,29 +127,21 @@ import axios from 'axios'
 
 export default {
   data: () => ({
-    email: [
-      (v) => {
-        const pattern =
-          /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-        return pattern.test(v) || 'E-mail invalido'
-      },
-    ],
-
-    valid: false,
     dialog: false,
     dialogDelete: false,
     headers: [
+      // name, companyId, email, phone, address
+
       {
         text: 'Nome',
         align: 'start',
         sortable: false,
         value: 'name',
       },
+      { text: 'CNPJ', value: 'company_id', sortable: false },
       { text: 'Email', value: 'email', sortable: false },
       { text: 'Telefone', value: 'phone', sortable: false },
-      { text: 'CPF', value: 'cpf', sortable: false },
       { text: 'Endereço', value: 'address', sortable: false },
-      { text: 'Matrícula', value: 'student_id', sortable: false },
       { text: 'Ações', value: 'actions', sortable: false },
     ],
     desserts: [],
@@ -163,26 +149,24 @@ export default {
     editedItem: {
       id: '',
       name: '',
+      company_id: '',
       email: '',
       phone: '',
-      cpf: '',
       address: '',
-      student_id: '',
     },
     defaultItem: {
       id: '',
       name: '',
+      company_id: '',
       email: '',
       phone: '',
-      cpf: '',
       address: '',
-      student_id: '',
     },
   }),
 
   computed: {
     formTitle() {
-      return this.editedIndex === -1 ? 'Novo Estudante' : 'Editar Estudante'
+      return this.editedIndex === -1 ? 'Nova Empresa' : 'Editar Empresa'
     },
   },
 
@@ -202,17 +186,16 @@ export default {
   methods: {
     async store() {
       try {
-        const student = await axios.post(`http://127.0.0.1:3333/students`, {
+        const company = await axios.post(`http://127.0.0.1:3333/companies`, {
           name: this.editedItem.name,
+          company_id: this.editedItem.company_id,
           email: this.editedItem.email,
           phone: this.editedItem.phone,
-          cpf: this.editedItem.cpf,
           address: this.editedItem.address,
-          student_id: this.editedItem.student_id,
         })
 
         // eslint-disable-next-line no-undef
-        console.log(student)
+        console.log(company)
         this.initialize()
       } catch (error) {
         // eslint-disable-next-line no-undef
@@ -222,13 +205,13 @@ export default {
 
     async update(id) {
       try {
-        const student = await axios.put(
-          `http://127.0.0.1:3333/students/${id}`,
+        const company = await axios.put(
+          `http://127.0.0.1:3333/companies/${id}`,
           this.editedItem
         )
 
         // eslint-disable-next-line no-undef
-        console.log(student)
+        console.log(company)
         this.initialize()
       } catch (error) {
         // eslint-disable-next-line no-undef
@@ -236,14 +219,18 @@ export default {
       }
     },
     async destroy(id) {
-      await axios.delete(`http://127.0.0.1:3333/students/${id}`)
+      await axios.delete(`http://127.0.0.1:3333/companies/${id}`)
       this.initialize()
     },
 
     async initialize() {
-      const students = await axios.get(`http://127.0.0.1:3333/students`)
+      const companies = await axios.get(`http://127.0.0.1:3333/companies`)
 
-      this.desserts = students.data
+      this.desserts = companies.data
+    },
+
+    companyMore(id) {
+      this.$router.push(`/companies/${id}`)
     },
 
     editItem(item) {
@@ -296,3 +283,4 @@ export default {
   },
 }
 </script>
+

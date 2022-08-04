@@ -3,6 +3,41 @@
   <v-container>
     <v-row>
       <v-col>
+        <NuxtLink to="/companies" style="text-decoration: none; color: inherit"
+          ><v-btn color="primary" x-small text>
+            <v-icon small> mdi-chevron-left </v-icon> Voltar
+          </v-btn>
+        </NuxtLink>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col>
+        <v-simple-table dense class="elevation-1">
+          <template v-slot:default>
+            <thead>
+              <tr>
+                <th class="text-left">Name</th>
+                <th class="text-left">CNPJ</th>
+                <th class="text-left">Email</th>
+                <th class="text-left">Telefone</th>
+                <th class="text-left">Endereço</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="item in company_details" :key="item.id">
+                <td>{{ item.name }}</td>
+                <td>{{ item.company_id }}</td>
+                <td>{{ item.email }}</td>
+                <td>{{ item.phone }}</td>
+                <td>{{ item.address }}</td>
+              </tr>
+            </tbody>
+          </template>
+        </v-simple-table>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col>
         <v-data-table
           :headers="headers"
           :items="desserts"
@@ -11,7 +46,7 @@
         >
           <template v-slot:top>
             <v-toolbar flat>
-              <v-toolbar-title>Estudantes</v-toolbar-title>
+              <v-toolbar-title>Supervisores</v-toolbar-title>
               <v-divider class="mx-4" inset vertical></v-divider>
               <v-spacer></v-spacer>
               <v-dialog v-model="dialog" max-width="600px">
@@ -30,51 +65,32 @@
                   <v-card-title>
                     <span class="text-h5">{{ formTitle }}</span>
                   </v-card-title>
-
+                  <!--  name, email, phone-->
                   <v-card-text>
-                    <v-form v-model="valid">
+                    <v-container>
                       <v-row>
                         <v-col cols="12" sm="6" md="6">
                           <v-text-field
                             v-model="editedItem.name"
-                            label="Nome Completo"
+                            label="Nome"
                           ></v-text-field>
                         </v-col>
                         <v-col cols="12" sm="6" md="6">
                           <v-text-field
                             v-model="editedItem.email"
                             label="Email"
-                            :rules="email"
                           ></v-text-field>
                         </v-col>
-                        <v-col cols="12" sm="6" md="4">
+                      </v-row>
+                      <v-row>
+                        <v-col cols="6">
                           <v-text-field
                             v-model="editedItem.phone"
                             label="Telefone"
                           ></v-text-field>
                         </v-col>
-                        <v-col cols="12" sm="6" md="4">
-                          <v-text-field
-                            v-model="editedItem.cpf"
-                            label="CPF"
-                          ></v-text-field>
-                        </v-col>
-                        <v-col cols="12" sm="6" md="4">
-                          <v-text-field
-                            v-model="editedItem.student_id"
-                            label="Matrícula"
-                          ></v-text-field>
-                        </v-col>
                       </v-row>
-                      <v-row>
-                        <v-col cols="12">
-                          <v-text-field
-                            v-model="editedItem.address"
-                            label="Endereço"
-                          ></v-text-field>
-                        </v-col>
-                      </v-row>
-                    </v-form>
+                    </v-container>
                   </v-card-text>
 
                   <v-card-actions>
@@ -82,12 +98,7 @@
                     <v-btn color="blue darken-1" text @click="close">
                       Cancelar
                     </v-btn>
-                    <v-btn
-                      color="blue darken-1"
-                      text
-                      @click="save"
-                      :disabled="!valid"
-                    >
+                    <v-btn color="blue darken-1" text @click="save">
                       Salvar
                     </v-btn>
                   </v-card-actions>
@@ -133,18 +144,12 @@ import axios from 'axios'
 
 export default {
   data: () => ({
-    email: [
-      (v) => {
-        const pattern =
-          /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-        return pattern.test(v) || 'E-mail invalido'
-      },
-    ],
-
-    valid: false,
+    company_id: '',
     dialog: false,
     dialogDelete: false,
     headers: [
+      // name, email, phone,
+
       {
         text: 'Nome',
         align: 'start',
@@ -153,9 +158,6 @@ export default {
       },
       { text: 'Email', value: 'email', sortable: false },
       { text: 'Telefone', value: 'phone', sortable: false },
-      { text: 'CPF', value: 'cpf', sortable: false },
-      { text: 'Endereço', value: 'address', sortable: false },
-      { text: 'Matrícula', value: 'student_id', sortable: false },
       { text: 'Ações', value: 'actions', sortable: false },
     ],
     desserts: [],
@@ -163,26 +165,30 @@ export default {
     editedItem: {
       id: '',
       name: '',
+      company_id: '', // ID
       email: '',
       phone: '',
-      cpf: '',
-      address: '',
-      student_id: '',
     },
     defaultItem: {
       id: '',
       name: '',
+      company_id: '', // ID
       email: '',
       phone: '',
-      cpf: '',
+    },
+    company_details: {
+      id: '',
+      name: '',
+      company_id: '', // CNPJ
+      email: '',
+      phone: '',
       address: '',
-      student_id: '',
     },
   }),
 
   computed: {
     formTitle() {
-      return this.editedIndex === -1 ? 'Novo Estudante' : 'Editar Estudante'
+      return this.editedIndex === -1 ? 'Novo Supervisor' : 'Editar Supervisor'
     },
   },
 
@@ -202,17 +208,18 @@ export default {
   methods: {
     async store() {
       try {
-        const student = await axios.post(`http://127.0.0.1:3333/students`, {
-          name: this.editedItem.name,
-          email: this.editedItem.email,
-          phone: this.editedItem.phone,
-          cpf: this.editedItem.cpf,
-          address: this.editedItem.address,
-          student_id: this.editedItem.student_id,
-        })
+        const supervisor = await axios.post(
+          `http://127.0.0.1:3333/supervisors`,
+          {
+            name: this.editedItem.name,
+            email: this.editedItem.email,
+            phone: this.editedItem.phone,
+            company_id: this.$route.params.id,
+          }
+        )
 
         // eslint-disable-next-line no-undef
-        console.log(student)
+        console.log(supervisor)
         this.initialize()
       } catch (error) {
         // eslint-disable-next-line no-undef
@@ -222,13 +229,13 @@ export default {
 
     async update(id) {
       try {
-        const student = await axios.put(
-          `http://127.0.0.1:3333/students/${id}`,
+        const supervisor = await axios.put(
+          `http://127.0.0.1:3333/supervisors/${id}`,
           this.editedItem
         )
 
         // eslint-disable-next-line no-undef
-        console.log(student)
+        console.log(supervisor)
         this.initialize()
       } catch (error) {
         // eslint-disable-next-line no-undef
@@ -236,14 +243,25 @@ export default {
       }
     },
     async destroy(id) {
-      await axios.delete(`http://127.0.0.1:3333/students/${id}`)
+      await axios.delete(`http://127.0.0.1:3333/supervisors/${id}`)
       this.initialize()
     },
 
-    async initialize() {
-      const students = await axios.get(`http://127.0.0.1:3333/students`)
+    async showSupervisors(id) {
+      const companies = await axios.get(
+        `http://127.0.0.1:3333/supervisors/${id}`
+      )
+      this.desserts = companies.data
+    },
 
-      this.desserts = students.data
+    async initialize() {
+      this.company_id = this.$route.params.id
+
+      const companyDetails = await axios.get(
+        `http://127.0.0.1:3333/companies/${this.company_id}`
+      )
+      this.showSupervisors(this.company_id)
+      this.company_details = companyDetails.data
     },
 
     editItem(item) {
@@ -296,3 +314,4 @@ export default {
   },
 }
 </script>
+
