@@ -94,7 +94,6 @@
                           <v-text-field
                             v-model="editedItem.initial_date"
                             label="Data de início"
-                            v-mask="'##/##/####'"
                           ></v-text-field>
                         </v-col>
                         <v-col cols="12" sm="6" md="6">
@@ -228,7 +227,7 @@
 
 <script>
 import axios from 'axios'
-import { format } from 'date-fns'
+import { format, parseISO } from 'date-fns'
 
 export default {
   data: () => ({
@@ -306,9 +305,7 @@ export default {
 
   computed: {
     formTitle() {
-      return this.editedIndex === -1
-        ? 'Novo Estágio '
-        : 'Editar Estágio 999999999'
+      return this.editedIndex === -1 ? 'Novo Estágio ' : 'Editar Estágio'
     },
   },
 
@@ -434,10 +431,10 @@ export default {
 
       return e
     },
-
+    // BD ESTÁ RECEBENDO YYYY-MM-DD
     formatDateForISO(str) {
-      const date = new Date(str)
-      const dateFormated = format(date, 'yyyy-MM-dd')
+      const dateFormated = format(new Date(parseISO(str)), 'yyyy-MM-dd')
+
       return dateFormated
     },
 
