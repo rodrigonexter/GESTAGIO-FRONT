@@ -207,6 +207,13 @@
             </v-toolbar>
           </template>
           <template v-slot:[`item.actions`]="{ item }">
+            <v-icon
+              small
+              class="mr-2"
+              @click="printReport(item.id, item.student_id, item.company_id)"
+            >
+              mdi-printer
+            </v-icon>
             <v-icon small class="mr-2" @click="internshipMore(item.id)">
               mdi-dots-vertical
             </v-icon>
@@ -227,7 +234,8 @@
 
 <script>
 import axios from 'axios'
-import { format, parseISO } from 'date-fns'
+import moment from 'moment'
+import jsPDF from 'jspdf'
 
 export default {
   data: () => ({
@@ -385,7 +393,7 @@ export default {
 
     async update(id) {
       try {
-        const student = await axios.put(
+        const internship = await axios.put(
           `http://127.0.0.1:3333/internships/${id}`,
           {
             student_id: this.editedItem.student_id,
@@ -402,13 +410,13 @@ export default {
             category: this.editedItem.category,
             modality: this.editedItem.modality,
             activities_plan: this.editedItem.activities_plan,
-            report: this.editedItem.activities_plan,
+            report: this.editedItem.report,
             status: this.editedItem.status,
           }
         )
 
         // eslint-disable-next-line no-undef
-        console.log(student)
+        console.log(internship)
         this.initialize()
       } catch (error) {
         // eslint-disable-next-line no-undef
@@ -421,19 +429,20 @@ export default {
     },
 
     formatDateForBrazil(e) {
-      const date = new Date(e.initial_date)
-      const dateFormated = format(date, 'dd/MM/yyyy')
-      e.initial_date = dateFormated
+      const initialDate = moment(e.initial_date).format('DD/MM/YYYY')
+      const finalDate = moment(e.final_date).format('DD/MM/YYYY')
+      e.initial_date = initialDate
 
-      const finalDate = new Date(e.final_date)
-      const FinalDateFormated = format(finalDate, 'dd/MM/yyyy')
-      e.final_date = FinalDateFormated
+      e.final_date = finalDate
 
       return e
     },
     // BD ESTÁ RECEBENDO YYYY-MM-DD
     formatDateForISO(str) {
-      const dateFormated = format(new Date(parseISO(str)), 'yyyy-MM-dd')
+      console.log(str, 'aqui')
+      const date = moment(str, 'DD/MM/YYYY')
+      const dateFormated = date.format('YYYY-MM-DD')
+      console.log(dateFormated)
 
       return dateFormated
     },
@@ -448,6 +457,7 @@ export default {
       this.dessertsEdited = internships.data
 
       this.desserts = this.dessertsEdited.map(this.formatDateForBrazil)
+      console.log(this.desserts)
 
       this.getStudents()
       this.getCompanies()
@@ -455,6 +465,125 @@ export default {
       // const str = '2021-12-12T03:00:00.000Z'
       // const date = new Date(str)
       // console.log(format(date, 'dd/MM/yyyy'))
+    },
+
+    async printReport(internship_id, student_id, company_id) {
+      const doc = new jsPDF()
+
+      const internshipEdited = await axios.get(
+        `http://127.0.0.1:3333/internships/${internship_id}`
+      )
+      const internshipAux = internshipEdited.data.map(this.formatDateForBrazil)
+      const internship = internshipAux[0]
+      console.log(internship, '<Internship>')
+
+      const studentEdited = await axios.get(
+        `http://127.0.0.1:3333/students/${student_id}`
+      )
+      const student = studentEdited.data
+      console.log(student, '<Student>')
+
+      const companyEdited = await axios.get(
+        `http://127.0.0.1:3333/companies/${company_id}`
+      )
+      const company = companyEdited.data
+      console.log(company, '<Company>')
+
+      const periodEdited = await axios.get(
+        `http://127.0.0.1:3333/periods/${internship_id}`
+      )
+      const period = periodEdited.data
+      console.log(period, '<Period>')
+
+      // TÍTULO
+      doc.setFontSize(30)
+      doc.text(45, 20, 'RELATÓRIO DE ESTÁGIO')
+      // ESTAGIÁRIO
+      doc.setFontSize(16)
+      doc.text(20, 40, 'ESTAGIÁRIO')
+      doc.setFontSize(12)
+      doc.text(20, 50, `Nome: ${student.name}`)
+      doc.text(20, 55, `E-mail: ${student.email}`)
+      doc.text(20, 60, `Telefone: ${student.phone}`)
+      doc.text(20, 65, `CPF: ${student.cpf}`)
+      doc.text(20, 70, `Matrícula: ${student.student_id}`)
+      doc.text(20, 75, `Endereço: ${student.address}`)
+
+      // CURSO
+      doc.setFontSize(16)
+      doc.text(20, 85, 'CURSO')
+      doc.setFontSize(12)
+      doc.text(20, 95, ' Sistemas de Informação')
+
+      // DADOS DO PERÍODO DE ESTÁGIO
+      doc.setFontSize(16)
+      doc.text(20, 105, 'PERÍODO DE ESTÁGIO')
+      doc.setFontSize(12)
+      doc.text(20, 115, `Empresa: ${company.name}`)
+      doc.text(20, 120, `CNPJ: ${company.company_id}`)
+      doc.text(20, 125, `E-mail: ${company.email}`)
+      doc.text(20, 130, `Telefone: ${company.phone}`)
+      doc.text(20, 135, `Endereço: ${company.address}`)
+      doc.text(20, 140, `Supervisor: ${internship.supervisor}`)
+      doc.text(20, 145, `Orientador: ${internship.teacher_name}`)
+      doc.text(20, 150, `Data de Início: ${internship.initial_date}`)
+      doc.text(20, 155, `Data de Término: ${internship.final_date}`)
+      doc.text(20, 160, `Bolsa: R$${internship.wage}`)
+      doc.text(20, 165, `Auxílio: R$${internship.aid}`)
+      doc.text(20, 170, `Seguradora: ${internship.health_insurance_company}`)
+      doc.text(20, 175, `Numero de Seguro: ${internship.health_insurance_code}`)
+      doc.text(
+        20,
+        180,
+        `Carga horária Semanal: ${internship.weekly_working_hours} horas`
+      )
+      doc.text(20, 185, `Categoria: ${internship.category}`)
+      doc.text(20, 190, `Modalidade: ${internship.modality}`)
+      doc.text(20, 195, `Status: ${internship.status}`)
+      doc.text(20, 200, `Plano de Atividades: ${internship.activities_plan}`)
+      doc.text(20, 205, `Relatório: ${internship.report}`)
+
+      let index = 1
+      for (let item of period) {
+        console.log(item, 'aqui')
+
+        // RENOVAÇÕES
+        doc.addPage()
+        doc.setFontSize(30)
+        doc.text(35, 20, 'RENOVAÇÕES DE ESTÁGIO')
+        doc.setFontSize(16)
+        doc.text(20, 40, `${index}ª RENOVAÇÃO DE ESTÁGIO`)
+
+        doc.setFontSize(12)
+        doc.text(20, 50, `Empresa: ${item.company_name}`)
+        doc.text(20, 55, `CNPJ: ${item.company_id}`)
+        doc.text(20, 60, `E-mail: ${item.company_email}`)
+        doc.text(20, 65, `Telefone: ${item.company_phone}`)
+        doc.text(20, 70, `Endereço: ${item.company_address}`)
+        doc.text(20, 75, `Supervisor: ${item.supervisor}`)
+        doc.text(20, 80, `Orientador: ${item.teacher_name}`)
+        doc.text(20, 85, `Data de Início: ${item.initial_date}`)
+        doc.text(20, 90, `Data de Término: ${item.final_date}`)
+        doc.text(20, 95, `Bolsa: R$${item.wage}`)
+        doc.text(20, 100, `Auxílio: R$${item.aid}`)
+        doc.text(20, 105, `Seguradora: ${item.health_insurance_company}`)
+        doc.text(20, 110, `Numero de Seguro: ${item.health_insurance_code}`)
+        doc.text(
+          20,
+          115,
+          `Carga horária Semanal: ${item.weekly_working_hours} horas`
+        )
+        doc.text(20, 120, `Categoria: ${item.category}`)
+        doc.text(20, 125, `Modalidade: ${item.modality}`)
+        doc.text(20, 130, `Status: ${item.status}`)
+        doc.text(20, 135, `Plano de Atividades: ${item.activities_plan}`)
+        doc.text(20, 140, `Relatório: ${item.report}`)
+
+        index += 1
+      }
+
+      // SAVE DOC IN PDF
+      doc.save(`${student.name}.pdf`)
     },
 
     editItem(item) {

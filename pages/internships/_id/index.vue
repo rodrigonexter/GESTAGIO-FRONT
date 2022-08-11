@@ -149,7 +149,6 @@
                           <v-text-field
                             v-model="editedItem.initial_date"
                             label="Data de início"
-                            v-mask="'##/##/####'"
                           ></v-text-field>
                         </v-col>
                         <v-col cols="12" sm="6" md="6">
@@ -279,7 +278,7 @@
 
 <script>
 import axios from 'axios'
-import { format } from 'date-fns'
+import moment from 'moment'
 
 export default {
   data: () => ({
@@ -424,25 +423,12 @@ export default {
       const internshipDetails = await axios.get(
         `http://127.0.0.1:3333/internships/${this.$route.params.id}`
       )
-      this.internship_details = internshipDetails.data[0]
-      console.log(this.internship_details)
-    },
+      const internshipEdited = internshipDetails.data
+      const internshipAux = internshipEdited.map(this.formatDateForBrazil)
 
-    formatDateForBrazil(e) {
-      const date = new Date(e.initial_date)
-      const dateFormated = format(date, 'dd/MM/yyyy')
-      e.initial_date = dateFormated
+      this.internship_details = internshipAux[0]
 
-      const finalDate = new Date(e.final_date)
-      const FinalDateFormated = format(finalDate, 'dd/MM/yyyy')
-      e.final_date = FinalDateFormated
-
-      return e
-    },
-
-    formatDateForISO(str) {
-      const dateFormated = format(str, 'yyyy-MM-dd')
-      return dateFormated
+      console.log(this.internship_details, '<=====')
     },
 
     async showPeriods() {
@@ -454,7 +440,6 @@ export default {
       this.desserts = this.dessertsEdited.map(this.formatDateForBrazil)
 
       console.log(this.desserts)
-      //this.desserts = periods.data
     },
 
     async store() {
@@ -465,8 +450,8 @@ export default {
           company_id: this.editedItem.company_id,
           teacher_id: this.editedItem.teacher_id,
           supervisor: this.editedItem.supervisor,
-          initial_date: this.editedItem.initial_date,
-          final_date: this.editedItem.final_date,
+          initial_date: this.formatDateForISO(this.editedItem.initial_date),
+          final_date: this.formatDateForISO(this.editedItem.final_date),
           wage: this.editedItem.wage,
           aid: this.editedItem.aid,
           health_insurance_code: this.editedItem.health_insurance_code,
@@ -490,10 +475,25 @@ export default {
 
     async update(id) {
       try {
-        const student = await axios.put(
-          `http://127.0.0.1:3333/periods/${id}`,
-          this.editedItem
-        )
+        const student = await axios.put(`http://127.0.0.1:3333/periods/${id}`, {
+          internship_id: this.$route.params.id,
+          student_id: this.editedItem.student_id,
+          company_id: this.editedItem.company_id,
+          teacher_id: this.editedItem.teacher_id,
+          supervisor: this.editedItem.supervisor,
+          initial_date: this.formatDateForISO(this.editedItem.initial_date),
+          final_date: this.formatDateForISO(this.editedItem.final_date),
+          wage: this.editedItem.wage,
+          aid: this.editedItem.aid,
+          health_insurance_code: this.editedItem.health_insurance_code,
+          health_insurance_company: this.editedItem.health_insurance_company,
+          weekly_working_hours: this.editedItem.weekly_working_hours,
+          category: this.editedItem.category,
+          modality: this.editedItem.modality,
+          activities_plan: this.editedItem.activities_plan,
+          report: this.editedItem.report,
+          status: this.editedItem.status,
+        })
 
         // eslint-disable-next-line no-undef
         console.log(student)
@@ -504,8 +504,26 @@ export default {
       }
     },
     async destroy(id) {
-      await axios.delete(`http://127.0.0.1:3333/courses/${id}`)
+      await axios.delete(`http://127.0.0.1:3333/periods/${id}`)
       this.initialize()
+    },
+
+    formatDateForBrazil(e) {
+      const initialDate = moment(e.initial_date).format('DD/MM/YYYY')
+      const finalDate = moment(e.final_date).format('DD/MM/YYYY')
+      e.initial_date = initialDate
+      e.final_date = finalDate
+
+      return e
+    },
+    // BD ESTÁ RECEBENDO YYYY-MM-DD
+    formatDateForISO(str) {
+      console.log(str, 'aqui')
+      const date = moment(str, 'DD/MM/YYYY')
+      const dateFormated = date.format('YYYY-MM-DD')
+      console.log(dateFormated)
+
+      return dateFormated
     },
 
     async initialize() {
