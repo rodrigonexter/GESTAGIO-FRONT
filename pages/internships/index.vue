@@ -79,11 +79,15 @@
                         </v-col>
 
                         <v-col cols="12" sm="6" md="6">
-                          <v-text-field
+                          <v-autocomplete
                             v-model="editedItem.teacher_id"
                             label="Orientador"
-                          ></v-text-field>
+                            :items="itemsTeachers"
+                            item-text="name"
+                            item-value="id"
+                          ></v-autocomplete>
                         </v-col>
+
                         <v-col cols="12" sm="6" md="6">
                           <v-text-field
                             v-model="editedItem.supervisor"
@@ -249,6 +253,7 @@ export default {
     itemsModality: ['Presencial', 'Remoto', 'Híbrido'],
     itemsStudents: [],
     itemsCompanies: [],
+    itemsTeachers: [],
     headers: [
       {
         text: 'Aluno',
@@ -341,6 +346,12 @@ export default {
       const companies = await axios.get(`http://127.0.0.1:3333/companies`)
 
       this.itemsCompanies = companies.data
+    },
+
+    async getTeachers() {
+      const teachers = await axios.get(`http://127.0.0.1:3333/teachers`)
+
+      this.itemsTeachers = teachers.data
     },
 
     getColorStatus(statusColor) {
@@ -461,6 +472,7 @@ export default {
 
       this.getStudents()
       this.getCompanies()
+      this.getTeachers()
 
       // const str = '2021-12-12T03:00:00.000Z'
       // const date = new Date(str)
@@ -513,7 +525,7 @@ export default {
       doc.setFontSize(16)
       doc.text(20, 85, 'CURSO')
       doc.setFontSize(12)
-      doc.text(20, 95, ' Sistemas de Informação')
+      doc.text(20, 95, `${internship.course_name}`)
 
       // DADOS DO PERÍODO DE ESTÁGIO
       doc.setFontSize(16)

@@ -27,6 +27,8 @@
       <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
 
       <v-toolbar-title>Gestagio</v-toolbar-title>
+      <v-spacer></v-spacer>
+      <v-icon @click="logout()">mdi-logout</v-icon>
     </v-app-bar>
 
     <v-main>
@@ -44,11 +46,6 @@ export default {
   data: () => ({
     drawer: null,
     items: [
-      {
-        icon: 'mdi-view-dashboard',
-        title: 'Dashboard',
-        to: '/dashboard',
-      },
       {
         icon: 'mdi-account-school',
         title: 'Estudantes',
@@ -76,5 +73,11 @@ export default {
       },
     ],
   }),
+
+  methods: {
+    logout() {
+      this.$router.push(`/login`)
+    },
+  },
 }
 </script>

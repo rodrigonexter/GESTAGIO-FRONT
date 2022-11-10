@@ -60,7 +60,7 @@ export default {
           if (this.login.email === 'god@god.com') {
             this.$router.push('/coordinators')
           } else {
-            this.$router.push('/dashboard')
+            this.$router.push('/students')
           }
         })
         .catch((error) => {

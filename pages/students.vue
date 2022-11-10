@@ -41,6 +41,15 @@
                           ></v-text-field>
                         </v-col>
                         <v-col cols="12" sm="6" md="6">
+                          <v-autocomplete
+                            v-model="editedItem.course_id"
+                            label="Curso"
+                            :items="itemsCourses"
+                            item-text="name"
+                            item-value="id"
+                          ></v-autocomplete>
+                        </v-col>
+                        <v-col cols="12" sm="6" md="6">
                           <v-text-field
                             v-model="editedItem.email"
                             label="Email"
@@ -133,6 +142,7 @@ import axios from 'axios'
 
 export default {
   data: () => ({
+    itemsCourses: [],
     email: [
       (v) => {
         const pattern =
@@ -151,6 +161,7 @@ export default {
         sortable: false,
         value: 'name',
       },
+      { text: 'Curso', value: 'course_name', sortable: false },
       { text: 'Email', value: 'email', sortable: false },
       { text: 'Telefone', value: 'phone', sortable: false },
       { text: 'CPF', value: 'cpf', sortable: false },
@@ -163,6 +174,7 @@ export default {
     editedItem: {
       id: '',
       name: '',
+      course_id: '',
       email: '',
       phone: '',
       cpf: '',
@@ -172,6 +184,7 @@ export default {
     defaultItem: {
       id: '',
       name: '',
+      course_id: '',
       email: '',
       phone: '',
       cpf: '',
@@ -200,10 +213,17 @@ export default {
   },
 
   methods: {
+    async getCourses() {
+      const courses = await axios.get(`http://127.0.0.1:3333/courses`)
+
+      this.itemsCourses = courses.data
+    },
+
     async store() {
       try {
         const student = await axios.post(`http://127.0.0.1:3333/students`, {
           name: this.editedItem.name,
+          course_id: this.editedItem.course_id,
           email: this.editedItem.email,
           phone: this.editedItem.phone,
           cpf: this.editedItem.cpf,
@@ -244,6 +264,8 @@ export default {
       const students = await axios.get(`http://127.0.0.1:3333/students`)
 
       this.desserts = students.data
+      console.log(this.desserts)
+      this.getCourses()
     },
 
     editItem(item) {

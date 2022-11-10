@@ -24,12 +24,12 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="item in company_details" :key="item.id">
-                <td>{{ item.name }}</td>
-                <td>{{ item.company_id }}</td>
-                <td>{{ item.email }}</td>
-                <td>{{ item.phone }}</td>
-                <td>{{ item.address }}</td>
+              <tr>
+                <td>{{ company_details.name }}</td>
+                <td>{{ company_details.company_id }}</td>
+                <td>{{ company_details.email }}</td>
+                <td>{{ company_details.phone }}</td>
+                <td>{{ company_details.address }}</td>
               </tr>
             </tbody>
           </template>
@@ -262,6 +262,7 @@ export default {
       )
       this.showSupervisors(this.company_id)
       this.company_details = companyDetails.data
+      console.log(this.company_details)
     },
 
     editItem(item) {
